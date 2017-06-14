@@ -13,6 +13,7 @@ RED = (255, 0, 0)
 BLUE = (51, 51, 255)
 
 # ---------- All classes ---------
+# This is the first enemy on level one, blue squares
 class Enemy(pygame.sprite.Sprite):
     """ This class represents the block. """
     def __init__(self, color):
@@ -24,6 +25,7 @@ class Enemy(pygame.sprite.Sprite):
  
         self.rect = self.image.get_rect()
     
+# This is the second enemy on level two, green squares
 class EnemyTwo(pygame.sprite.Sprite):
     """ This class represents the block. """
     def __init__(self, color):
@@ -35,6 +37,7 @@ class EnemyTwo(pygame.sprite.Sprite):
  
         self.rect = self.image.get_rect()
 
+# The player, a black bow and arrow
 class Player(pygame.sprite.Sprite):
     """ This class represents the Player. """
  
@@ -58,6 +61,7 @@ class Player(pygame.sprite.Sprite):
         # Set the player x position to the mouse x position
         self.rect.y = pos[1]
         
+# This is the moving projectile, a black arrow
 class Bullet(pygame.sprite.Sprite):
     """ This class represents the bullet . """
     def __init__(self):
@@ -65,9 +69,7 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__()
  
         self.image = pygame.image.load("arrows.png")
-        
         self.image.set_colorkey(BLACK)
- 
         self.rect = self.image.get_rect()
  
     def update(self):
@@ -85,10 +87,13 @@ block_list = pygame.sprite.Group()
 block_list_two = pygame.sprite.Group()
 bullet_list = pygame.sprite.Group()
 bullet_list_two = pygame.sprite.Group()
+
+# Adds the player sprite to the lists
 player = Player()
 all_sprites_list.add(player)
 all_sprites_list_two.add(player)
 
+# Creates the enemies on the first level
 for i in range(25):
     # This represents a block
     block = Enemy(BLUE)
@@ -101,6 +106,7 @@ for i in range(25):
     block_list.add(block)
     all_sprites_list.add(block)
 
+# Creates the enemies for the second level
 for i in range(40):
     # This represents the second enemy
     enemytwo = EnemyTwo(GREEN)
@@ -126,13 +132,14 @@ done = False
 clock = pygame.time.Clock()
 
 # -------- All of the sounds & images ---------
-main_background_image = pygame.image.load("hanamurabackground.bmp").convert()  
-info_background_image = pygame.image.load("02_Overwatch_Logo.bmp").convert()
-intro_background_image = pygame.image.load("58686_overwatch.bmp").convert()
+main_background_image = pygame.image.load("mainbackground.bmp").convert()  
+info_background_image = pygame.image.load("instructionsbackground.bmp").convert()
+intro_background_image = pygame.image.load("introbackground.bmp").convert()
 end_screen_image = pygame.image.load("end_screen.png")
 intro_music = pygame.mixer.Sound("bensound-straight.ogg")
 hit_sound = pygame.mixer.Sound("successful_hit.ogg")
 fire_sound = pygame.mixer.Sound("fire_sound.ogg")
+victory_sound = pygame.mixer.Sound("Victory.ogg")
 
 # This is a font we use to draw text on the screen (size 48)
 font = pygame.font.Font(None, 48)
@@ -148,6 +155,7 @@ while not done and display_intro:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 instruction_page = 1
+                intro = 0
                 display_intro = False
                 intro_music.stop()
     
@@ -158,8 +166,8 @@ while not done and display_intro:
     # instructions to advance to the next screen.
     if intro == 1:
         
-        # Plays music
-        intro_music.set_volume(.2)
+        # Plays music and sets the volume
+        intro_music.set_volume(.07)
         intro_music.play()
         
         # Instructions to advance
@@ -202,7 +210,7 @@ while not done and display_instructions:
         # Draw instructions, page 1
         # This could also load an image created in another program.
         # That could be both easier and more flexible.
- 
+                
         text = font.render("Instructions", True, WHITE)
         screen.blit(text, [10, 10])
        
@@ -257,7 +265,7 @@ while not done and level_one:
         if event.type == pygame.QUIT:
             done = True               
             
-            # If the user decides to quit, get the current score.
+            # If the user decides to quit early, get the current score.
             try:
                 file = open('highscores.txt', 'r')
                 lines = file.readlines()
@@ -282,14 +290,18 @@ while not done and level_one:
                 file.close()   
             
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            
             # Fire a bullet if the user clicks the mouse button
             bullet = Bullet()
+            
             # Set the bullet so it is where the player is
             bullet.rect.x = player.rect.x
             bullet.rect.y = player.rect.y + 145
+            
             # Add the bullet to the lists
             all_sprites_list.add(bullet)
             bullet_list.add(bullet)   
+            
             # Play shooting sound
             fire_sound.play()
         
@@ -300,6 +312,7 @@ while not done and level_one:
             
     # Make the cursor invisible        
     pygame.mouse.set_visible(0)  
+    
     
     # Prints the level the player is on
     text = font.render("LEVEL ONE", True, WHITE)
@@ -352,7 +365,7 @@ while not done and level_two:
         if event.type == pygame.QUIT:
             done = True 
             
-            # If the user decides to quit, get the current score.
+            # If the user decides to quit early, get the current score.
             try:
                 file = open('highscores.txt', 'r')
                 lines = file.readlines()
@@ -377,14 +390,18 @@ while not done and level_two:
                 file.close()
                 
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            
             # Fire a bullet if the user clicks the mouse button
             bullet = Bullet()
+            
             # Set the bullet so it is where the player is
             bullet.rect.x = player.rect.x
             bullet.rect.y = player.rect.y + 145
+            
             # Add the bullet to the lists
             all_sprites_list_two.add(bullet)
-            bullet_list_two.add(bullet)   
+            bullet_list_two.add(bullet)  
+            
             # Play shooting sound
             fire_sound.play()
             
@@ -420,6 +437,7 @@ while not done and level_two:
         # Make the cursor invisible        
         pygame.mouse.set_visible(0)  
         
+        
     for bullet in bullet_list_two:
         # See if it hit a block
         block_hit_list_two = pygame.sprite.spritecollide(bullet, block_list_two, True)
@@ -431,8 +449,9 @@ while not done and level_two:
             
             score += 1
             print(score)
-            hit_sound.play()
             
+            # Plays a sound when an arrow collides with an enemy
+            hit_sound.play()
         
         # Remove the bullet if it flies up off the screen
         if bullet.rect.x > 2000:
@@ -464,15 +483,19 @@ while not done and level_two:
     pygame.display.flip()
     
 end_screen = True
+play_victory_sound = 1
 # ------ End Screen -------
 while not done and end_screen:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            victory_sound.stop()
             done = True
             
+    # Plays the victory sound
+    victory_sound.play()       
+    
+    # Display the image and flip  
     screen.blit(end_screen_image, [0, 0])
-
-
     pygame.display.flip()
  
     # --- Limit to 60 frames per second
